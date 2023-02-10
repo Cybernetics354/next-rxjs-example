@@ -1,4 +1,5 @@
-import { useState, useLayoutEffect } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useLayoutEffect, useEffect } from "react";
 import { BehaviorSubject } from "rxjs";
 
 function useListenRx<T>(controller: BehaviorSubject<T>) {
@@ -12,8 +13,7 @@ function useListenRx<T>(controller: BehaviorSubject<T>) {
     return () => {
       subscription.unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [state]);
 
   return state;
 }
@@ -35,29 +35,25 @@ function useListenObjectRx<T extends Object, F extends Array<keyof T>>(
   const initialState = getSplicedValue(controller.value);
   const [state, setState] = useState<Pick<T, F[number]>>(initialState);
 
-  useLayoutEffect(
-    () => {
-      const subscription = controller.subscribe((newValue) => {
-        let isChanged = false;
+  useEffect(() => {
+    const subscription = controller.subscribe((newValue) => {
+      let isChanged = false;
 
-        fields.map((field) => {
-          if (state[field] === newValue[field] || isChanged) return;
-          isChanged = true;
-        });
-
-        if (!isChanged) return;
-
-        const splicedNewValue = getSplicedValue(newValue);
-        setState(splicedNewValue);
+      fields.map((field) => {
+        if (state[field] === newValue[field] || isChanged) return;
+        isChanged = true;
       });
 
-      return () => {
-        subscription.unsubscribe();
-      };
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+      if (!isChanged) return;
+
+      const splicedNewValue = getSplicedValue(newValue);
+      setState(splicedNewValue);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [state]);
 
   return state;
 }

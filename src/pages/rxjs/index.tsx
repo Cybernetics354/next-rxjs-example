@@ -19,6 +19,10 @@ export default function RxjsPage() {
     })
   ).current;
 
+  const [count, setCount] = useState(0);
+
+  console.log("Rxjs Page :: Re-rendering");
+
   return (
     <ControllerContext.Provider value={controller}>
       <Name />
@@ -35,6 +39,9 @@ export default function RxjsPage() {
       </button>
       <div style={{ height: 40 }} />
       <UseStateComponent />
+      <div style={{ height: 40 }} />
+      <p>Counter : {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment Use State</button>
     </ControllerContext.Provider>
   );
 }
